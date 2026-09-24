@@ -1,0 +1,139 @@
+---
+import { Image } from 'astro:assets';
+import { CATEGORIES, STATUTS_PRODUIT } from '../config';
+import { datesDuDrop, type Drop, type Produit } from '../lib/contenu';
+import { calculerEtat, si, zoneDrop, LIBELLES_ETAT } from '../lib/etat-drop';
+import { prix } from '../lib/dates';
+import BoutonAchat from './BoutonAchat.astro';
+
+interface Props {
+  produit: Produit;
+  drop?: Drop;
+  maintenant: number;
+  vedette?: boolean;
+}
+const { produit, drop, maintenant, vedette = false } = Astro.props;
+const p = produit.data;
+const photo = p.photos[0];
+const dates = drop ? datesDuDrop(drop) : undefined;
+const etat = dates ? calculerEtat(dates, maintenant) : undefined;
+const zone = dates && etat ? zoneDrop(dates, etat) : {};
+const lienFiche = `/produits/${produit.id}`;
+---
+
+<article class:list={['carte', { 'carte--vedette': vedette }]} {...zone} data-categorie={p.categorie}>
+  <a class="carte__image" href={lienFiche} tabindex="-1" aria-hidden="true">
+    <Image
+      src={photo.photo}
+      alt=""
+      widths={[360, 540, 720, 1080]}
+      sizes={vedette ? '(min-width: 48rem) 50vw, 100vw' : '(min-width: 64rem) 25vw, (min-width: 48rem) 33vw, 50vw'}
+    />
+  </a>
+  <div class="carte__corps">
+    <p class="carte__meta">
+      <span>{CATEGORIES[p.categorie]}</span>
+      {
+        etat ? (
+          <>
+            <span class="etiquette" {...si(['avenir', 'teasing'], etat)}>{LIBELLES_ETAT.teasing}</span>
+            <span class="etiquette" {...si(['acces'], etat)}>{LIBELLES_ETAT.acces}</span>
+            <span class="etiquette" {...si(['ouvert'], etat)}>{STATUTS_PRODUIT[p.statut]}</span>
+            <span class="etiquette etiquette--epuise" {...si(['clos', 'archive'], etat)}>Épuisé</span>
+          </>
+        ) : (
+          <span class:list={['etiquette', { 'etiquette--epuise': p.statut === 'epuise' }]}>
+            {STATUTS_PRODUIT[p.statut]}
+          </span>
+        )
+      }
+    </p>
+    <h3 class="carte__nom"><a href={lienFiche}>{p.nom}</a></h3>
+    <p class="carte__prix">{prix(p.prix)}</p>
+    {p.numerotation && <p class="carte__tirage">{p.numerotation}</p>}
+    {vedette && <p class="carte__desc">{p.description_courte}</p>}
+    <BoutonAchat produit={produit} drop={drop} etat={etat} compact={!vedette} />
+  </div>
+</article>
+
+<style>
+  .carte {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .carte__image {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--furtif);
+  }
+  .carte__image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .carte:hover .carte__image :global(img) {
+    transform: scale(1.03);
+  }
+  .carte__corps {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding-top: 0.75rem;
+  }
+  .carte__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+    font-family: var(--police-ui);
+    font-size: 0.9rem;
+    color: var(--stealth-texte);
+  }
+  .carte__meta .etiquette {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.4rem;
+  }
+  .carte__nom {
+    margin: 0 0 0.25rem;
+    font-size: 1.2rem;
+  }
+  .carte__nom a {
+    text-decoration: none;
+  }
+  .carte__nom a:hover {
+    text-decoration: underline;
+  }
+  .carte__prix {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin: 0;
+  }
+  .carte__tirage {
+    font-size: 0.9rem;
+    color: var(--stealth-texte);
+    margin: 0.1rem 0 0;
+  }
+  .carte__desc {
+    margin: 0.5rem 0 0;
+    color: var(--stealth-texte);
+  }
+  .carte :global(.achat) {
+    margin-top: auto;
+    padding-top: 0.9rem;
+  }
+  .carte--vedette .carte__nom {
+    font-family: var(--police-titre);
+    font-weight: var(--poids-titre);
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    line-height: 1;
+  }
+  .carte--vedette .carte__prix {
+    font-size: 1.5rem;
+  }
+</style>

@@ -1,0 +1,157 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroViseur from '../components/HeroViseur.astro';
+import CarteProduit from '../components/CarteProduit.astro';
+import { SITE } from '../config';
+import { dropALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
+
+const maintenant = Date.now();
+const drop = await dropALaUne(maintenant);
+const produitsDrop = drop ? await produitsDuDrop(drop.id) : [];
+const produitPhare = produitsDrop[0];
+const selection = (await produitsPermanents()).slice(0, 4);
+
+const usages = [
+  {
+    titre: 'Cohésion',
+    texte: "Les moments qui soudent l'équipe : repas, sorties, fin d'année. Ceux qui tiennent quand les nuits sont longues.",
+  },
+  {
+    titre: 'Solidarité',
+    texte: 'Un coup de main quand un collègue ou sa famille traverse une période difficile.',
+  },
+  {
+    titre: 'Actions',
+    texte: "Des actions locales, à Montargis et autour, portées par les membres de l'amicale.",
+  },
+];
+---
+
+<Base>
+  <HeroViseur drop={drop} produitPhare={produitPhare} maintenant={maintenant} />
+
+  <section class="section" aria-labelledby="titre-selection">
+    <div class="conteneur">
+      <div class="entete-section">
+        <div>
+          <p class="marquage">Toute l'année</p>
+          <h2 id="titre-selection">La boutique</h2>
+        </div>
+        <a class="lien-fort" href="/boutique">Tout voir <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="grille-produits">
+        {
+          selection.map((produit) => (
+            <li>
+              <CarteProduit produit={produit} maintenant={maintenant} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section usages" aria-labelledby="titre-usages">
+    <div class="conteneur usages__grille">
+      <div>
+        <p class="marquage">À quoi sert votre achat</p>
+        <h2 id="titre-usages">Tout reste dans la meute.</h2>
+        <p class="chapeau">
+          L'amicale est une association loi 1901. Le bénéfice de chaque écusson, t-shirt ou calendrier finance sa vie.
+        </p>
+      </div>
+      <ol class="usages__liste">
+        {
+          usages.map((u, i) => (
+            <li>
+              <span class="usages__num" aria-hidden="true">0{i + 1}</span>
+              <h3>{u.titre}</h3>
+              <p>{u.texte}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section liste" aria-labelledby="titre-liste">
+    <div class="conteneur liste__boite">
+      <p class="marquage">Liste privée</p>
+      <h2 id="titre-liste">Les drops partent vite.</h2>
+      <p class="chapeau">
+        Inscrivez-vous pour recevoir le lien avant l'ouverture publique. Un e-mail par drop, pas plus.
+      </p>
+      <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">Rejoindre la liste privée</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .entete-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .entete-section h2 {
+    margin: 0;
+  }
+  .lien-fort {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    padding-block: 0.5rem;
+  }
+
+  .usages {
+    background: var(--furtif);
+  }
+  .usages__grille {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 56rem) {
+    .usages__grille {
+      grid-template-columns: 1fr 1.2fr;
+      gap: 4rem;
+    }
+  }
+  .usages .chapeau {
+    color: #b9bec6;
+  }
+  .usages__liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.75rem;
+  }
+  .usages__liste li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    column-gap: 0.75rem;
+    border-top: 1px solid rgb(232 230 225 / 0.15);
+    padding-top: 1rem;
+  }
+  .usages__num {
+    grid-row: span 2;
+    font-family: var(--police-titre);
+    font-weight: var(--poids-titre);
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--stealth);
+  }
+  .usages__liste h3 {
+    margin: 0 0 0.25rem;
+  }
+  .usages__liste p {
+    margin: 0;
+    color: #b9bec6;
+  }
+
+  .liste__boite {
+    max-width: 44rem;
+  }
+</style>

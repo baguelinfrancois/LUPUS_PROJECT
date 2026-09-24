@@ -1,0 +1,74 @@
+---
+// Zone d'achat d'un produit : bouton HelloAsso ou message selon l'état.
+// Pour un produit de drop, doit être placé dans une zone de drop (data-drop).
+import { si, type EtatDrop } from '../lib/etat-drop';
+import { lienAchat, type Produit, type Drop } from '../lib/contenu';
+import { dateEtHeure } from '../lib/dates';
+import { SITE } from '../config';
+
+interface Props {
+  produit: Produit;
+  drop?: Drop;
+  etat?: EtatDrop;
+  compact?: boolean;
+}
+const { produit, drop, etat, compact = false } = Astro.props;
+const lien = lienAchat(produit);
+const statut = produit.data.statut;
+const achetableHorsDrop = statut === 'disponible' || statut === 'precommande';
+const libelleAchat = 'Acheter sur HelloAsso';
+const classe = `bouton bouton--large${compact ? ' bouton--compact' : ''}`;
+---
+
+<div class="achat">
+  {
+    drop && etat ? (
+      <>
+        <div {...si(['ouvert'], etat)}>
+          <a class={classe} href={lien} rel="noopener" data-suivi="achat" data-produit={produit.id}>
+            {libelleAchat} <span class="fleche" aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <p class="achat__message" {...si(['avenir', 'teasing'], etat)}>
+          Ouverture le {dateEtHeure(drop.data.date_ouverture)}.
+          {!compact && (
+            <>
+              {' '}<a href={SITE.listePrivee} data-suivi="inscription">Accès anticipé via la liste privée</a>.
+            </>
+          )}
+        </p>
+        <p class="achat__message" {...si(['acces'], etat)}>
+          Réservé à la liste privée. Ouverture à tous le {dateEtHeure(drop.data.date_ouverture)}.
+        </p>
+        <p class="achat__message achat__message--epuise" {...si(['clos', 'archive'], etat)}>
+          Épuisé. Drop terminé.
+        </p>
+      </>
+    ) : achetableHorsDrop ? (
+      <a class={classe} href={lien} rel="noopener" data-suivi="achat" data-produit={produit.id}>
+        {libelleAchat} <span class="fleche" aria-hidden="true">↗</span>
+      </a>
+    ) : (
+      <p class="achat__message achat__message--epuise">{statut === 'epuise' ? 'Épuisé.' : 'Plus disponible.'}</p>
+    )
+  }
+</div>
+
+<style>
+  .achat__message {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--stealth-texte);
+  }
+  .achat__message--epuise {
+    color: var(--alerte);
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .bouton--compact {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+</style>

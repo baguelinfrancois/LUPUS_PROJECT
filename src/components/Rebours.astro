@@ -1,0 +1,26 @@
+---
+// Compte à rebours. Doit être placé dans une zone de drop (attribut data-drop).
+import { decomposer, echeance, type DatesDrop, type EtatDrop } from '../lib/etat-drop';
+import { dateEtHeure } from '../lib/dates';
+
+interface Props {
+  dates: DatesDrop;
+  etat: EtatDrop;
+  maintenant: number;
+}
+const { dates, etat, maintenant } = Astro.props;
+const ech = echeance(etat, dates);
+const r = decomposer(ech ? ech.cible - maintenant : 0);
+const deux = (n: number) => String(n).padStart(2, '0');
+---
+
+<div class="rebours" data-rebours role="timer" hidden={!ech}>
+  <span class="rebours__libelle" data-rebours-libelle>{ech?.libelle}</span>
+  <span class="rebours__valeurs" aria-hidden="true">
+    <span><span data-unite="jours">{r.jours}</span><span class="rebours__unite">j</span></span>
+    <span><span data-unite="heures">{deux(r.heures)}</span><span class="rebours__unite">h</span></span>
+    <span><span data-unite="minutes">{deux(r.minutes)}</span><span class="rebours__unite">min</span></span>
+    <span><span data-unite="secondes">{deux(r.secondes)}</span><span class="rebours__unite">s</span></span>
+  </span>
+  <span class="rebours__cible" data-rebours-cible>{ech && `Le ${dateEtHeure(new Date(ech.cible))}`}</span>
+</div>

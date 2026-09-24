@@ -1,0 +1,296 @@
+---
+// Élément signature : un viseur de vision nocturne qui révèle le produit phare du drop.
+import { Image } from 'astro:assets';
+import { SITE } from '../config';
+import { datesDuDrop, lienAchat, type Drop, type Produit } from '../lib/contenu';
+import { calculerEtat, si, zoneDrop } from '../lib/etat-drop';
+import { dateEtHeure, dateLongue, moisAnnee, prix } from '../lib/dates';
+import Rebours from './Rebours.astro';
+
+interface Props {
+  drop?: Drop;
+  produitPhare?: Produit;
+  maintenant: number;
+}
+const { drop, produitPhare, maintenant } = Astro.props;
+const dates = drop ? datesDuDrop(drop) : undefined;
+const etat = dates ? calculerEtat(dates, maintenant) : 'avenir';
+const zone = dates ? zoneDrop(dates, etat) : {};
+const visuel = produitPhare?.data.photos[0].photo ?? drop?.data.visuel_principal;
+const lienDrop = drop ? `/drops/${drop.id}` : undefined;
+// Avance de la liste privée, en heures (ex. « 48 h »).
+const avance = dates ? Math.round((dates.ouverture - dates.acces) / 3_600_000) : 0;
+---
+
+<section class="hero" {...zone} aria-labelledby="hero-titre">
+  <div class="conteneur hero__grille">
+    <div class="viseur" aria-hidden="true">
+      <div class="viseur__optique">
+        {
+          visuel && (
+            <Image
+              class="viseur__image"
+              src={visuel}
+              alt=""
+              widths={[400, 640, 900]}
+              sizes="(min-width: 48rem) 440px, 80vw"
+              loading="eager"
+              fetchpriority="high"
+            />
+          )
+        }
+        <div class="viseur__teinte"></div>
+        <div class="viseur__balayage"></div>
+        <svg class="viseur__reticule" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="97" fill="none" stroke-width="1.2"></circle>
+          <circle cx="100" cy="100" r="3" fill="none" stroke-width="0.8"></circle>
+          <path
+            d="M100 8 V70 M100 130 V192 M8 100 H70 M130 100 H192 M60 100 v4 M40 100 v4 M140 100 v4 M160 100 v4 M100 60 h4 M100 40 h4 M100 140 h4 M100 160 h4"
+            stroke-width="0.8"></path>
+        </svg>
+      </div>
+      <span class="viseur__repere viseur__repere--hg">IR · 2.5×</span>
+      <span class="viseur__repere viseur__repere--bd">{drop ? drop.data.nom_de_code.toUpperCase() : 'MEUTE'}</span>
+    </div>
+
+    <div class="hero__texte">
+      {
+        drop && etat ? (
+          <>
+            <p class="marquage">
+              <span {...si(['avenir', 'teasing', 'acces', 'ouvert'], etat)}>Drop en cours · {drop.data.nom_de_code}</span>
+              <span {...si(['clos', 'archive'], etat)}>Dernier drop · {drop.data.nom_de_code}</span>
+            </p>
+            <h1 id="hero-titre">{drop.data.accroche}</h1>
+
+            <Rebours dates={dates!} etat={etat} maintenant={maintenant} />
+
+            <div class="hero__actions" {...si(['avenir', 'teasing', 'acces'], etat)}>
+              <div class="boutons">
+                <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">
+                  Rejoindre la liste privée
+                </a>
+                <a class="bouton bouton--secondaire" href={lienDrop}>
+                  Découvrir le drop
+                </a>
+              </div>
+              <p class="hero__info hero__info--apres" {...si(['avenir', 'teasing'], etat)}>
+                La liste privée reçoit le lien {avance} h avant tout le monde.
+              </p>
+              <p class="hero__info hero__info--apres" {...si(['acces'], etat)}>
+                Accès anticipé en cours, réservé à la liste privée. Ouverture à tous le{' '}
+                {dateEtHeure(drop.data.date_ouverture)}.
+              </p>
+            </div>
+
+            <div class="hero__actions" {...si(['ouvert'], etat)}>
+              {produitPhare && (
+                <p class="hero__info">
+                  <strong>{produitPhare.data.nom}</strong> · {prix(produitPhare.data.prix)}
+                  {produitPhare.data.numerotation && <> · {produitPhare.data.numerotation}</>}
+                  <br />
+                  Livraison prévue en {moisAnnee(drop.data.date_livraison_prevue)}.
+                </p>
+              )}
+              <div class="boutons">
+                {produitPhare && (
+                  <a class="bouton" href={lienAchat(produitPhare)} rel="noopener" data-suivi="achat" data-produit={produitPhare.id}>
+                    Acheter sur HelloAsso <span class="fleche" aria-hidden="true">↗</span>
+                  </a>
+                )}
+                <a class="bouton bouton--secondaire" href={lienDrop}>
+                  Voir tout le drop
+                </a>
+              </div>
+            </div>
+
+            <div class="hero__actions" {...si(['clos', 'archive'], etat)}>
+              <p class="hero__info">
+                Drop terminé le {dateLongue(drop.data.date_cloture)}. Le prochain s'annonce d'abord sur la liste privée.
+              </p>
+              <div class="boutons">
+                <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">
+                  Être prévenu du prochain drop
+                </a>
+                <a class="bouton bouton--secondaire" href="/boutique">
+                  Voir la boutique
+                </a>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <p class="marquage">Amicale du PSIG de Montargis</p>
+            <h1 id="hero-titre">Le prochain drop se prépare.</h1>
+            <p class="hero__info">La liste privée est prévenue en premier.</p>
+            <div class="boutons">
+              <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">
+                Rejoindre la liste privée
+              </a>
+              <a class="bouton bouton--secondaire" href="/boutique">
+                Voir la boutique
+              </a>
+            </div>
+          </>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(1.25rem, 5vw, 5rem) clamp(3rem, 8vw, 6rem);
+    overflow: hidden;
+  }
+  .hero__grille {
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  @media (min-width: 56rem) {
+    .hero__grille {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 4rem;
+    }
+  }
+
+  /* --- Viseur --- */
+  .viseur {
+    position: relative;
+    width: min(64vw, 34vh, 440px);
+    width: min(64vw, 34svh, 440px);
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+  /* Halo autour de l'optique */
+  .viseur::before {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(155 227 122 / 0.14), transparent);
+    pointer-events: none;
+  }
+  .viseur__optique {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #050805;
+    box-shadow:
+      0 0 0 6px #05070c,
+      0 0 0 7px rgb(138 144 153 / 0.35),
+      inset 0 0 60px 20px rgb(0 0 0 / 0.85);
+    animation: allumage 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    isolation: isolate;
+  }
+  .viseur__optique :global(.viseur__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Image en niveaux de gris, contrastée : la teinte verte vient du calque suivant */
+    filter: grayscale(1) contrast(1.35) brightness(1.35);
+    transform: scale(1.12);
+    transition: filter 0.6s ease;
+  }
+  /* Teasing : produit flouté, en silhouette */
+  .hero[data-etat='teasing'] .viseur__optique :global(.viseur__image),
+  .hero[data-etat='avenir'] .viseur__optique :global(.viseur__image) {
+    filter: grayscale(1) contrast(1.5) brightness(1.2) blur(7px);
+  }
+  .viseur__teinte {
+    position: absolute;
+    inset: 0;
+    background: var(--vision);
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+  .viseur__balayage {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+      repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px),
+      radial-gradient(circle, transparent 45%, rgb(0 0 0 / 0.75) 100%);
+    pointer-events: none;
+  }
+  .viseur__reticule {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    stroke: var(--vision);
+    stroke-opacity: 0.55;
+  }
+  .viseur__repere {
+    position: absolute;
+    font-family: var(--police-ui);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--stealth-texte);
+  }
+  .viseur__repere--hg {
+    top: 2%;
+    left: -2%;
+  }
+  .viseur__repere--bd {
+    bottom: 2%;
+    right: -2%;
+  }
+
+  @keyframes allumage {
+    0% {
+      clip-path: circle(0% at 50% 50%);
+      filter: brightness(3);
+    }
+    35% {
+      filter: brightness(1.8);
+    }
+    45% {
+      filter: brightness(0.6);
+    }
+    60% {
+      filter: brightness(1.3);
+    }
+    100% {
+      clip-path: circle(50% at 50% 50%);
+      filter: brightness(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viseur__optique {
+      animation: none;
+    }
+  }
+
+  /* --- Texte --- */
+  .hero__texte h1 {
+    font-size: clamp(2.2rem, 9.5vw, 4.5rem);
+    margin-bottom: 1rem;
+  }
+  .hero__texte :global(.rebours) {
+    margin-bottom: 1.25rem;
+  }
+  .hero__info {
+    color: var(--stealth-texte);
+    margin-bottom: 1rem;
+    max-width: 30rem;
+  }
+  .hero__info--apres {
+    margin: 0.9rem 0 0;
+    font-size: 0.95rem;
+  }
+  .hero__info strong {
+    color: var(--lampe);
+    font-weight: 600;
+  }
+  @media (max-width: 30rem) {
+    .hero .boutons .bouton {
+      flex: 1 1 100%;
+    }
+  }
+</style>
