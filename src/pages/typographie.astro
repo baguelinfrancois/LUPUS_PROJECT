@@ -46,7 +46,7 @@ const options = [
                 <span class="s-bouton">Acheter sur HelloAsso ↗</span>
               </div>
               <p class="option__note">{o.note}</p>
-              <a class="bouton bouton--secondaire" href={`/?typo=${o.id}`}>Voir le site avec l'{o.nom.toLowerCase()}</a>
+              <a class="bouton bouton--secondaire" href={`/?typo=${o.id}`}>Voir le site avec l'option {o.id.toUpperCase()}</a>
             </article>
           ))
         }
