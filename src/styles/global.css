@@ -5,7 +5,7 @@
 
 /* ---------- Polices (hébergées sur le site : aucun appel à Google) ---------- */
 
-/* Option A : Big Shoulders Stencil Display + Barlow Condensed + Barlow */
+/* Big Shoulders Stencil Display (titres) + Barlow Condensed (boutons, repères) + Barlow (texte) */
 @font-face {
   font-family: 'Big Shoulders Stencil Display';
   src: url('/fonts/big-shoulders-stencil-display-800.woff2') format('woff2');
@@ -37,25 +37,6 @@
   font-display: swap;
 }
 
-/* Option B : Saira Stencil One + Saira Condensed */
-@font-face {
-  font-family: 'Saira Stencil One';
-  src: url('/fonts/saira-stencil-one-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Saira Condensed';
-  src: url('/fonts/saira-condensed-600.woff2') format('woff2');
-  font-weight: 600;
-  font-display: swap;
-}
 
 /* ---------- Réglages ---------- */
 
@@ -70,7 +51,7 @@
   --vision: #9be37a; /* UNIQUEMENT vision nocturne et compte à rebours */
   --alerte: #e0a35a; /* épuisé / clos */
 
-  /* Polices : option A par défaut */
+  /* Polices */
   --police-titre: 'Big Shoulders Stencil Display', 'Arial Narrow', sans-serif;
   --poids-titre: 800;
   --police-ui: 'Barlow Condensed', 'Arial Narrow', sans-serif;
@@ -83,12 +64,6 @@
   color-scheme: dark;
 }
 
-:root[data-typo='b'] {
-  --police-titre: 'Saira Stencil One', 'Arial Narrow', sans-serif;
-  --poids-titre: 400;
-  --police-ui: 'Saira Condensed', 'Arial Narrow', sans-serif;
-  --police-texte: 'Saira Condensed', system-ui, sans-serif;
-}
 
 @media (min-width: 48rem) {
   :root {
@@ -120,9 +95,6 @@ body {
   overflow-x: hidden;
 }
 
-:root[data-typo='b'] body {
-  font-size: 1.125rem;
-}
 
 img,
 svg {

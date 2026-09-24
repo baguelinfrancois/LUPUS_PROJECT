@@ -109,5 +109,4 @@ npm run build    # site statique dans dist/
 - États des drops : `src/lib/etat-drop.ts`, partagé entre la construction et le navigateur (`src/scripts/drops.ts`).
 - Polices hébergées dans `public/fonts/` (aucun appel à Google Fonts, donc rien à déclarer côté RGPD).
 - Liens généraux (HelloAsso, Instagram) : `src/config.ts`.
-- Page temporaire `/typographie` pour comparer les deux options de police ; `?typo=b` affiche tout le site avec l'option B.
 - Les boutons portent `data-suivi="achat"` ou `data-suivi="inscription"` pour les statistiques (phase 3).

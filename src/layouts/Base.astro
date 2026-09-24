@@ -39,15 +39,6 @@ const urlImage = image ? new URL(image, Astro.site).href : undefined;
     <link rel="preload" href="/fonts/big-shoulders-stencil-display-800.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin />
 
-    <!-- Choix de typographie (temporaire, le temps de valider l'option A ou B) -->
-    <script is:inline>
-      try {
-        var p = new URLSearchParams(location.search).get('typo');
-        if (p === 'a' || p === 'b') sessionStorage.setItem('typo', p);
-        var t = sessionStorage.getItem('typo');
-        if (t === 'b') document.documentElement.dataset.typo = 'b';
-      } catch (e) {}
-    </script>
   </head>
   <body>
     <a class="lien-evitement" href="#contenu">Aller au contenu</a>
