@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+
+<Base titre="Liste privée" description="Recevez le lien des drops avant l'ouverture publique.">
+  <section class="section">
+    <div class="conteneur texte-long">
+      <p class="marquage">Liste privée</p>
+      <h1>Passez en premier.</h1>
+      <p class="chapeau">
+        Les inscrits reçoivent le lien de chaque drop avant l'ouverture publique. Un e-mail par drop, pas plus.
+      </p>
+      <!-- Phase 2 : le formulaire d'inscription (avec consentement RGPD) remplacera ce bloc. -->
+      <p>
+        Le formulaire d'inscription arrive très bientôt. En attendant, suivez
+        <a href={SITE.instagram} rel="noopener">{SITE.instagramPseudo}</a> sur Instagram : chaque drop y est annoncé.
+      </p>
+      <a class="bouton" href={SITE.instagram} rel="noopener">Suivre sur Instagram</a>
+    </div>
+  </section>
+</Base>

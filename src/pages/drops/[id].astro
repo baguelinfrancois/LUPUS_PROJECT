@@ -1,0 +1,270 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CarteProduit from '../../components/CarteProduit.astro';
+import Rebours from '../../components/Rebours.astro';
+import { SITE } from '../../config';
+import { datesDuDrop, produitsDuDrop, tousLesDrops, type Drop } from '../../lib/contenu';
+import { calculerEtat, si, zoneDrop, LIBELLES_ETAT } from '../../lib/etat-drop';
+import { dateEtHeure, dateLongue, moisAnnee } from '../../lib/dates';
+
+export const getStaticPaths = (async () => {
+  const drops = await tousLesDrops();
+  return drops.map((drop) => ({ params: { id: drop.id }, props: { drop } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  drop: Drop;
+}
+const { drop } = Astro.props;
+const d = drop.data;
+const maintenant = Date.now();
+const dates = datesDuDrop(drop);
+const etat = calculerEtat(dates, maintenant);
+const produits = await produitsDuDrop(drop.id);
+const { Content } = await render(drop);
+const imageOg = await getImage({ src: d.visuel_principal, width: 1200, format: 'jpg' });
+
+const etapes = [
+  { libelle: 'Accès anticipé (liste privée)', date: dateEtHeure(d.date_acces_anticipe) },
+  { libelle: 'Ouverture à tous', date: dateEtHeure(d.date_ouverture) },
+  { libelle: 'Clôture', date: dateEtHeure(d.date_cloture) },
+  { libelle: 'Livraison prévue', date: dateLongue(d.date_livraison_prevue) },
+];
+---
+
+<Base titre={`Drop ${d.nom_de_code}`} description={d.accroche} image={imageOg.src}>
+  <div {...zoneDrop(dates, etat)} class="page-drop">
+    <section class="entete-drop">
+      <div class="conteneur entete-drop__grille">
+        <div class="entete-drop__visuel">
+          <Image
+            src={d.visuel_principal}
+            alt={d.texte_alternatif}
+            widths={[480, 720, 1080]}
+            sizes="(min-width: 56rem) 45vw, 100vw"
+            loading="eager"
+          />
+        </div>
+        <div>
+          <p class="marquage">
+            Drop · <span {...si(['avenir', 'teasing'], etat)}>{LIBELLES_ETAT.teasing}</span>
+            <span {...si(['acces'], etat)}>{LIBELLES_ETAT.acces}</span>
+            <span {...si(['ouvert'], etat)}>{LIBELLES_ETAT.ouvert}</span>
+            <span {...si(['clos'], etat)}>{LIBELLES_ETAT.clos}</span>
+            <span {...si(['archive'], etat)}>{LIBELLES_ETAT.archive}</span>
+          </p>
+          <h1>{d.nom_de_code}</h1>
+          <p class="chapeau">{d.accroche}</p>
+
+          <Rebours dates={dates} etat={etat} maintenant={maintenant} />
+
+          <div class="entete-drop__action" {...si(['avenir', 'teasing'], etat)}>
+            <p>Les produits se dévoilent à l'accès anticipé. La liste privée passe en premier.</p>
+            <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">Rejoindre la liste privée</a>
+          </div>
+          <div class="entete-drop__action" {...si(['acces'], etat)}>
+            <p>Réservé à la liste privée : le lien d'achat a été envoyé par e-mail. Ouverture à tous le {dateEtHeure(d.date_ouverture)}.</p>
+            <a class="bouton bouton--secondaire" href={SITE.listePrivee} data-suivi="inscription">Rejoindre la liste privée</a>
+          </div>
+          <div class="entete-drop__action" {...si(['ouvert'], etat)}>
+            <p>Commandes ouvertes jusqu'au {dateEtHeure(d.date_cloture)}. Livraison prévue en {moisAnnee(d.date_livraison_prevue)}.</p>
+            <a class="bouton" href="#produits">Voir les produits <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="entete-drop__action" {...si(['clos', 'archive'], etat)}>
+            <p>Drop terminé le {dateLongue(d.date_cloture)}. Merci à tous. Le prochain s'annonce d'abord sur la liste privée.</p>
+            <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">Être prévenu du prochain drop</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {
+      produits.length > 0 && (
+        <section class="section" id="produits" aria-labelledby="titre-produits" {...si(['acces', 'ouvert', 'clos', 'archive'], etat)}>
+          <div class="conteneur">
+            <h2 id="titre-produits">Le drop</h2>
+            <ul class="grille-produits grille-produits--vedette">
+              {produits.map((produit, i) => (
+                <li>
+                  <CarteProduit produit={produit} drop={drop} maintenant={maintenant} vedette={i === 0} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="section" aria-labelledby="titre-histoire">
+      <div class="conteneur">
+        <p class="marquage">L'histoire</p>
+        <h2 id="titre-histoire" class="visuellement-cache">L'histoire du drop</h2>
+        <div class="texte-long">
+          <Content />
+        </div>
+      </div>
+    </section>
+
+    {
+      d.lookbook.length > 0 && (
+        <section class="section" aria-labelledby="titre-lookbook">
+          <div class="conteneur">
+            <h2 id="titre-lookbook">Lookbook</h2>
+          </div>
+          <ul class="lookbook">
+            {d.lookbook.map((l) => (
+              <li>
+                <figure>
+                  <Image src={l.photo} alt={l.legende} widths={[400, 640, 900]} sizes="(min-width: 48rem) 30vw, 80vw" />
+                  <figcaption>{l.legende}</figcaption>
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="section" aria-labelledby="titre-dates">
+      <div class="conteneur dates-faq">
+        <div>
+          <h2 id="titre-dates">Dates clés</h2>
+          <dl class="dates">
+            {
+              etapes.map((e) => (
+                <div>
+                  <dt>{e.libelle}</dt>
+                  <dd>{e.date}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+        {
+          d.faq.length > 0 && (
+            <div class="faq">
+              <h2>Questions</h2>
+              {d.faq.map((q) => (
+                <details>
+                  <summary>{q.question}</summary>
+                  <p>{q.reponse}</p>
+                </details>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .entete-drop {
+    padding-block: 1.5rem clamp(3rem, 8vw, 5rem);
+  }
+  .entete-drop__grille {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 56rem) {
+    .entete-drop__grille {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .entete-drop__visuel {
+    aspect-ratio: 4 / 5;
+    max-height: 60svh;
+    width: 100%;
+    overflow: hidden;
+    background: var(--furtif);
+  }
+  .entete-drop__visuel :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.6s ease;
+  }
+  /* Teasing : visuel flouté, en silhouette */
+  .page-drop[data-etat='teasing'] .entete-drop__visuel :global(img),
+  .page-drop[data-etat='avenir'] .entete-drop__visuel :global(img) {
+    filter: blur(16px) brightness(0.55) contrast(1.4);
+    transform: scale(1.1);
+  }
+  .entete-drop h1 {
+    font-size: clamp(3rem, 16vw, 6.5rem);
+    margin-bottom: 0.75rem;
+  }
+  .entete-drop :global(.rebours) {
+    margin-block: 1.5rem;
+  }
+  .entete-drop__action p {
+    color: var(--stealth-texte);
+    max-width: 30rem;
+  }
+
+  .lookbook {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--marge);
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(80vw, 26rem);
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--marge);
+    scrollbar-width: thin;
+  }
+  .lookbook li {
+    scroll-snap-align: start;
+  }
+  .lookbook figure {
+    margin: 0;
+  }
+  .lookbook :global(img) {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    width: 100%;
+  }
+  .lookbook figcaption {
+    font-size: 0.9rem;
+    color: var(--stealth-texte);
+    margin-top: 0.5rem;
+  }
+
+  .dates-faq {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 56rem) {
+    .dates-faq {
+      grid-template-columns: 1fr 1.3fr;
+      gap: 4rem;
+    }
+  }
+  .dates {
+    margin: 0;
+  }
+  .dates div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    border-top: 1px solid rgb(138 144 153 / 0.25);
+    padding-block: 0.9rem;
+  }
+  .dates dt {
+    color: var(--stealth-texte);
+  }
+  .dates dd {
+    margin: 0;
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+</style>

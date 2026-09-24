@@ -1,0 +1,150 @@
+---
+// Page temporaire : comparer les deux options de typographie avant de choisir.
+// À supprimer une fois l'option validée.
+import Base from '../layouts/Base.astro';
+
+const options = [
+  {
+    id: 'a',
+    nom: 'Option A',
+    polices: 'Big Shoulders Stencil Display (titres) · Barlow Condensed (boutons, repères) · Barlow (texte)',
+    note: "Pochoir haut et serré, très « marquage ». Texte courant plus large, confortable à lire sur téléphone.",
+  },
+  {
+    id: 'b',
+    nom: 'Option B',
+    polices: 'Saira Stencil One (titres) · Saira Condensed (boutons, repères et texte)',
+    note: 'Pochoir plus large et plus technique. Une seule famille pour tout le reste : plus compact, plus homogène.',
+  },
+];
+---
+
+<Base titre="Typographie : deux options">
+  <section class="section">
+    <div class="conteneur">
+      <p class="marquage">À valider</p>
+      <h1>Deux options de typographie</h1>
+      <p class="chapeau">
+        Comparez sur votre téléphone, puis parcourez le site entier avec chaque option.
+      </p>
+
+      <div class="options">
+        {
+          options.map((o) => (
+            <article class={`option option--${o.id}`} aria-labelledby={`opt-${o.id}`}>
+              <h2 id={`opt-${o.id}`} class="option__nom">{o.nom}</h2>
+              <p class="option__polices">{o.polices}</p>
+              <div class="specimen">
+                <p class="s-marquage">Drop en cours · Fenrir</p>
+                <p class="s-titre">Le loup sort à la tombée de la nuit.</p>
+                <p class="s-rebours">12<small>j</small> 04<small>h</small> 33<small>min</small></p>
+                <p class="s-texte">
+                  Fenrir, c'est le loup de la meute. Celui qu'on a dessiné sur un coin de table, un soir, entre deux
+                  services. Écusson brodé, dos velcro, 8 cm. Tirage limité à 200.
+                </p>
+                <p class="s-produit">Écusson Fenrir · 12 €</p>
+                <span class="s-bouton">Acheter sur HelloAsso ↗</span>
+              </div>
+              <p class="option__note">{o.note}</p>
+              <a class="bouton bouton--secondaire" href={`/?typo=${o.id}`}>Voir le site avec l'{o.nom.toLowerCase()}</a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .options {
+    display: grid;
+    gap: 3rem;
+    margin-top: 2.5rem;
+  }
+  @media (min-width: 56rem) {
+    .options {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .option {
+    border-top: 1px solid rgb(138 144 153 / 0.35);
+    padding-top: 1.25rem;
+  }
+  .option__nom {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-bottom: 0.25rem;
+  }
+  .option__polices,
+  .option__note {
+    color: var(--stealth-texte);
+    font-size: 0.95rem;
+  }
+  .specimen {
+    background: var(--furtif);
+    padding: 1.5rem 1.25rem;
+    margin-block: 1rem;
+  }
+  .option--a .specimen {
+    --t: 'Big Shoulders Stencil Display', sans-serif;
+    --tw: 800;
+    --u: 'Barlow Condensed', sans-serif;
+    --x: 'Barlow', sans-serif;
+    --xs: 1.0625rem;
+  }
+  .option--b .specimen {
+    --t: 'Saira Stencil One', sans-serif;
+    --tw: 400;
+    --u: 'Saira Condensed', sans-serif;
+    --x: 'Saira Condensed', sans-serif;
+    --xs: 1.125rem;
+  }
+  .specimen p {
+    margin: 0 0 0.9rem;
+  }
+  .s-marquage {
+    font-family: var(--u);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--stealth-texte);
+  }
+  .s-titre {
+    font-family: var(--t);
+    font-weight: var(--tw);
+    font-size: clamp(2.2rem, 9.5vw, 3.5rem);
+    line-height: 0.95;
+  }
+  .s-rebours {
+    font-family: var(--u);
+    font-weight: 600;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--vision);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-rebours small {
+    font-size: 0.45em;
+    margin-right: 0.6em;
+  }
+  .s-texte {
+    font-family: var(--x);
+    font-size: var(--xs);
+    line-height: 1.55;
+  }
+  .s-produit {
+    font-family: var(--u);
+    font-weight: 600;
+    font-size: 1.3rem;
+  }
+  .s-bouton {
+    display: inline-block;
+    background: var(--lampe);
+    color: var(--nuit);
+    font-family: var(--u);
+    font-weight: 600;
+    font-size: 1.15rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: var(--rayon);
+  }
+</style>

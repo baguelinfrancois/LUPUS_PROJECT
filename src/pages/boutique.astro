@@ -1,0 +1,139 @@
+---
+import Base from '../layouts/Base.astro';
+import CarteProduit from '../components/CarteProduit.astro';
+import { CATEGORIES, type Categorie } from '../config';
+import { dropALaUne, etatDuDrop, produitsPermanents } from '../lib/contenu';
+
+const maintenant = Date.now();
+const produits = await produitsPermanents();
+const categories = (Object.keys(CATEGORIES) as Categorie[]).filter((c) =>
+  produits.some((p) => p.data.categorie === c),
+);
+const drop = await dropALaUne(maintenant);
+const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(drop, maintenant));
+---
+
+<Base titre="Boutique" description="Écussons, textile, accessoires et calendrier de l'Amicale du PSIG de Montargis.">
+  <section class="section boutique">
+    <div class="conteneur">
+      <p class="marquage">Toute l'année</p>
+      <h1>Boutique</h1>
+      <p class="chapeau">
+        Les pièces permanentes de l'amicale. Paiement et livraison gérés par HelloAsso.
+      </p>
+
+      {
+        dropActif && (
+          <p class="bandeau-drop">
+            Drop en cours : <a href={`/drops/${drop.id}`}>{drop.data.nom_de_code}</a>, en tirage limité.
+          </p>
+        )
+      }
+
+      <fieldset class="filtres">
+        <legend class="visuellement-cache">Filtrer par catégorie</legend>
+        <label>
+          <input type="radio" name="categorie" value="tout" checked />
+          <span>Tout</span>
+        </label>
+        {
+          categories.map((c) => (
+            <label>
+              <input type="radio" name="categorie" value={c} />
+              <span>{CATEGORIES[c]}</span>
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <ul class="grille-produits" id="produits">
+        {
+          produits.map((produit) => (
+            <li data-categorie={produit.data.categorie}>
+              <CarteProduit produit={produit} maintenant={maintenant} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Filtre par catégorie. Sans JavaScript, tous les produits restent visibles.
+  const liste = document.getElementById('produits');
+  const radios = document.querySelectorAll<HTMLInputElement>('input[name="categorie"]');
+
+  function filtrer(valeur: string) {
+    liste?.querySelectorAll<HTMLElement>('li[data-categorie]').forEach((li) => {
+      li.hidden = valeur !== 'tout' && li.dataset.categorie !== valeur;
+    });
+    const url = new URL(location.href);
+    if (valeur === 'tout') url.searchParams.delete('categorie');
+    else url.searchParams.set('categorie', valeur);
+    history.replaceState(null, '', url);
+  }
+
+  const initiale = new URLSearchParams(location.search).get('categorie');
+  radios.forEach((r) => {
+    if (r.value === initiale) r.checked = true;
+    r.addEventListener('change', () => r.checked && filtrer(r.value));
+  });
+  if (initiale) filtrer(initiale);
+</script>
+
+<style>
+  .boutique h1 {
+    margin-bottom: 0.75rem;
+  }
+  .bandeau-drop {
+    border-left: 2px solid var(--lampe);
+    padding: 0.25rem 0 0.25rem 0.9rem;
+    margin-block: 1.5rem;
+    font-family: var(--police-ui);
+    font-weight: 500;
+    font-size: 1.1rem;
+  }
+  .bandeau-drop a {
+    font-weight: 600;
+  }
+  .filtres {
+    border: 0;
+    min-width: 0;
+    margin: 1.5rem calc(var(--marge) * -1) 2rem;
+    padding: 0 var(--marge);
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filtres label {
+    position: relative;
+    flex: none;
+    cursor: pointer;
+  }
+  .filtres input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .filtres span {
+    display: inline-block;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid rgb(138 144 153 / 0.45);
+    border-radius: var(--rayon);
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--stealth-texte);
+  }
+  .filtres input:checked + span {
+    background: var(--lampe);
+    border-color: var(--lampe);
+    color: var(--nuit);
+  }
+  .filtres input:focus-visible + span {
+    outline: 3px solid var(--lampe);
+    outline-offset: 2px;
+  }
+</style>

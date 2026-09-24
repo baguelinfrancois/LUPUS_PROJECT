@@ -1,0 +1,229 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BoutonAchat from '../../components/BoutonAchat.astro';
+import Rebours from '../../components/Rebours.astro';
+import { CATEGORIES, STATUTS_PRODUIT } from '../../config';
+import { datesDuDrop, tousLesProduits, type Produit } from '../../lib/contenu';
+import { calculerEtat, si, zoneDrop, LIBELLES_ETAT } from '../../lib/etat-drop';
+import { dateEtHeure, dateLongue, moisAnnee, prix } from '../../lib/dates';
+
+export const getStaticPaths = (async () => {
+  const produits = await tousLesProduits();
+  return produits.map((produit) => ({ params: { id: produit.id }, props: { produit } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  produit: Produit;
+}
+const { produit } = Astro.props;
+const p = produit.data;
+const maintenant = Date.now();
+const drop = p.drop ? await getEntry('drops', p.drop) : undefined;
+if (p.drop && !drop) throw new Error(`Produit « ${produit.id} » : drop « ${p.drop} » introuvable.`);
+const dates = drop ? datesDuDrop(drop) : undefined;
+const etat = dates ? calculerEtat(dates, maintenant) : undefined;
+const zone = dates && etat ? zoneDrop(dates, etat) : {};
+const { Content } = await render(produit);
+const imageOg = await getImage({ src: p.photos[0].photo, width: 1200, format: 'jpg' });
+---
+
+<Base titre={p.nom} description={p.description_courte} image={imageOg.src}>
+  <article class="fiche" {...zone}>
+    <div class="conteneur fiche__grille">
+      <div class="fiche__photos">
+        <ul class="galerie" aria-label="Photos du produit">
+          {
+            p.photos.map((ph, i) => (
+              <li>
+                <Image
+                  src={ph.photo}
+                  alt={ph.texte_alternatif}
+                  widths={[480, 720, 1080]}
+                  sizes="(min-width: 56rem) 50vw, 100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              </li>
+            ))
+          }
+        </ul>
+        {p.photos.length > 1 && <p class="galerie__aide">{p.photos.length} photos, faites glisser.</p>}
+      </div>
+
+      <div class="fiche__infos">
+        <p class="marquage">
+          {drop ? <a href={`/drops/${drop.id}`}>Drop {drop.data.nom_de_code}</a> : <a href="/boutique">{CATEGORIES[p.categorie]}</a>}
+        </p>
+        <h1>{p.nom}</h1>
+        <p class="fiche__prix">
+          {prix(p.prix)}
+          {
+            etat ? (
+              <>
+                <span class="etiquette" {...si(['avenir', 'teasing'], etat)}>{LIBELLES_ETAT.teasing}</span>
+                <span class="etiquette" {...si(['acces'], etat)}>{LIBELLES_ETAT.acces}</span>
+                <span class="etiquette" {...si(['ouvert'], etat)}>{STATUTS_PRODUIT[p.statut]}</span>
+                <span class="etiquette etiquette--epuise" {...si(['clos', 'archive'], etat)}>Épuisé</span>
+              </>
+            ) : (
+              <span class:list={['etiquette', { 'etiquette--epuise': p.statut === 'epuise' }]}>{STATUTS_PRODUIT[p.statut]}</span>
+            )
+          }
+        </p>
+
+        <div class="fiche__achat">
+          <BoutonAchat produit={produit} drop={drop} etat={etat} />
+          <p class="mention-externe">Paiement sécurisé sur HelloAsso, la plateforme des associations.</p>
+        </div>
+
+        <ul class="fiche__rappels">
+          {p.numerotation && <li>{p.numerotation}</li>}
+          {
+            drop && etat && (
+              <>
+                <li {...si(['avenir', 'teasing', 'acces', 'ouvert'], etat)}>Clôture le {dateEtHeure(drop.data.date_cloture)}</li>
+                <li>Livraison prévue en {moisAnnee(drop.data.date_livraison_prevue)}</li>
+              </>
+            )
+          }
+          {!drop && p.statut === 'precommande' && <li>Précommande : envoi dès réception du stock</li>}
+        </ul>
+
+        {dates && etat && <Rebours dates={dates} etat={etat} maintenant={maintenant} />}
+
+        <p class="fiche__desc">{p.description_courte}</p>
+        <div class="texte-long">
+          <Content />
+        </div>
+        {
+          drop && (
+            <p class="fiche__drop" {...si(['clos', 'archive'], etat!)}>
+              Drop terminé le {dateLongue(drop.data.date_cloture)}.
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .fiche {
+    padding-block: 1rem clamp(3rem, 8vw, 6rem);
+  }
+  .fiche__grille {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 56rem) {
+    .fiche__grille {
+      grid-template-columns: 1.1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .fiche__infos {
+      position: sticky;
+      top: 2rem;
+    }
+  }
+
+  /* Galerie : défilement horizontal, photo réduite en hauteur sur mobile
+     pour que le bouton d'achat reste visible sans défiler. */
+  .fiche__photos {
+    margin-inline: calc(var(--marge) * -1);
+  }
+  @media (min-width: 56rem) {
+    .fiche__photos {
+      margin-inline: 0;
+    }
+  }
+  .galerie {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .galerie li {
+    scroll-snap-align: start;
+    height: min(46svh, 125vw);
+    background: var(--furtif);
+  }
+  @media (min-width: 56rem) {
+    .galerie {
+      grid-auto-flow: row;
+      gap: 1rem;
+    }
+    .galerie li {
+      height: auto;
+      aspect-ratio: 4 / 5;
+    }
+  }
+  .galerie :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Teasing : photos floutées jusqu'à l'accès anticipé */
+  .fiche[data-etat='teasing'] .galerie :global(img),
+  .fiche[data-etat='avenir'] .galerie :global(img) {
+    filter: blur(16px) brightness(0.6);
+  }
+  .galerie__aide {
+    font-size: 0.85rem;
+    color: var(--stealth-texte);
+    margin: 0.4rem var(--marge) 0;
+  }
+  @media (min-width: 56rem) {
+    .galerie__aide {
+      display: none;
+    }
+  }
+
+  .fiche h1 {
+    font-size: clamp(2.1rem, 9vw, 3.75rem);
+    margin-bottom: 0.4rem;
+  }
+  .fiche__prix {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  .fiche__achat {
+    margin-bottom: 1.25rem;
+  }
+  .fiche__rappels {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    font-family: var(--police-ui);
+    font-weight: 500;
+    font-size: 1.05rem;
+  }
+  .fiche__rappels li {
+    padding-block: 0.45rem;
+    border-top: 1px solid rgb(138 144 153 / 0.25);
+  }
+  .fiche__rappels li:last-child {
+    border-bottom: 1px solid rgb(138 144 153 / 0.25);
+  }
+  .fiche :global(.rebours) {
+    margin-bottom: 1.5rem;
+  }
+  .fiche__desc {
+    font-size: 1.15rem;
+  }
+  .fiche__drop {
+    color: var(--alerte);
+  }
+</style>
