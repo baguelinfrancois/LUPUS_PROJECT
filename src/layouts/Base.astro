@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+import EnTete from '../components/EnTete.astro';
+import PiedDePage from '../components/PiedDePage.astro';
+
+interface Props {
+  titre?: string;
+  description?: string;
+  image?: string;
+}
+
+const { titre, description = SITE.description, image } = Astro.props;
+const titreComplet = titre ? `${titre} · ${SITE.nomCourt}` : SITE.nom;
+const urlCanonique = new URL(Astro.url.pathname, Astro.site);
+const urlImage = image ? new URL(image, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titreComplet}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={urlCanonique} />
+    <meta name="theme-color" content="#0d1321" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content={SITE.nom} />
+    <meta property="og:title" content={titreComplet} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={urlCanonique} />
+    {urlImage && <meta property="og:image" content={urlImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preload" href="/fonts/big-shoulders-stencil-display-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/barlow-condensed-600.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Choix de typographie (temporaire, le temps de valider l'option A ou B) -->
+    <script is:inline>
+      try {
+        var p = new URLSearchParams(location.search).get('typo');
+        if (p === 'a' || p === 'b') sessionStorage.setItem('typo', p);
+        var t = sessionStorage.getItem('typo');
+        if (t === 'b') document.documentElement.dataset.typo = 'b';
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+    <EnTete />
+    <main id="contenu">
+      <slot />
+    </main>
+    <PiedDePage />
+    <script>
+      import '../scripts/drops';
+    </script>
+  </body>
+</html>

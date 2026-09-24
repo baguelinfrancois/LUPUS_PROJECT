@@ -1,0 +1,67 @@
+---
+import { SITE } from '../config';
+const annee = new Date().getFullYear();
+---
+
+<footer class="pied">
+  <div class="conteneur pied__grille">
+    <div>
+      <p class="pied__nom">{SITE.nom}</p>
+      <p class="pied__texte">
+        Association loi 1901. Les paiements se font sur HelloAsso, plateforme de paiement des associations.
+      </p>
+    </div>
+    <ul class="pied__liens">
+      <li><a href="/boutique">Boutique</a></li>
+      <li><a href={SITE.listePrivee}>Liste privée</a></li>
+      <li><a href={SITE.boutiqueHelloAsso} rel="noopener">Boutique HelloAsso</a></li>
+      <li><a href={SITE.instagram} rel="noopener">Instagram {SITE.instagramPseudo}</a></li>
+    </ul>
+  </div>
+  <div class="conteneur">
+    <p class="pied__mentions">© {annee} {SITE.nom}</p>
+  </div>
+</footer>
+
+<style>
+  .pied {
+    border-top: 1px solid rgb(138 144 153 / 0.18);
+    padding-block: 3rem calc(2rem + env(safe-area-inset-bottom));
+    color: var(--stealth-texte);
+    font-size: 0.95rem;
+  }
+  .pied__grille {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 48rem) {
+    .pied__grille {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+  .pied__nom {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--lampe);
+    margin-bottom: 0.5rem;
+  }
+  .pied__texte {
+    max-width: 28rem;
+  }
+  .pied__liens {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .pied__liens a {
+    display: inline-block;
+    padding-block: 0.4rem;
+  }
+  .pied__mentions {
+    margin: 2rem 0 0;
+    font-size: 0.85rem;
+  }
+</style>

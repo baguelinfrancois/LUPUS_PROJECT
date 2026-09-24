@@ -1,0 +1,93 @@
+---
+import { SITE } from '../config';
+
+const liens = [
+  { href: '/boutique', texte: 'Boutique' },
+  { href: SITE.listePrivee, texte: 'Liste privée' },
+];
+const chemin = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="entete">
+  <div class="conteneur entete__barre">
+    <a class="entete__marque" href="/" aria-label="Accueil, Amicale du PSIG de Montargis">
+      <svg viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <path
+          d="M50 92 L38 78 L30 70 L22 55 L18 38 L22 12 L35 29 L50 25 L65 29 L78 12 L82 38 L78 55 L70 70 L62 78 Z"
+          fill="currentColor"></path>
+        <path d="M31 45 L44 50 L35 53 Z M69 45 L56 50 L65 53 Z M45 73 L55 73 L50 80 Z" fill="#0d1321"></path>
+      </svg>
+      <span>Amicale <strong>PSIG</strong> Montargis</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <ul>
+        {
+          liens.map((l) => (
+            <li>
+              <a href={l.href} aria-current={chemin === l.href ? 'page' : undefined}>
+                {l.texte}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .entete {
+    border-bottom: 1px solid rgb(138 144 153 / 0.18);
+    padding-top: env(safe-area-inset-top);
+  }
+  .entete__barre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+  }
+  .entete__marque {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    font-family: var(--police-ui);
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+  .entete__marque strong {
+    font-weight: 600;
+  }
+  nav ul {
+    display: flex;
+    gap: 1.1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-decoration: none;
+    color: var(--stealth-texte);
+    padding-block: 0.75rem;
+    display: inline-block;
+  }
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--lampe);
+  }
+  nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+  }
+  @media (max-width: 22rem) {
+    .entete__marque span {
+      display: none;
+    }
+  }
+</style>
