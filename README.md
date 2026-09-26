@@ -36,7 +36,7 @@ Texte plus long, facultatif. Il s'affiche sur la page du produit.
 - **Sans `lien_helloasso`**, le bouton renvoie vers la boutique HelloAsso entière.
 - **Le texte alternatif** décrit la photo pour les personnes malvoyantes. Une phrase suffit.
 - Les **packs** et les produits **premium** s'affichent toujours en premier.
-- Un produit avec `drop:` n'apparaît pas dans la boutique permanente : il suit les dates du drop.
+- Un produit avec `drop:` s'affiche en tête de l'accueil et de la boutique, dans le bloc « Drop en cours », et suit les dates du drop. Après la clôture, ce bloc disparaît tout seul.
 
 ## Ajouter un drop
 

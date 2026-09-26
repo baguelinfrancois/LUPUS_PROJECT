@@ -1,0 +1,85 @@
+---
+// Bloc « Drop en cours » : produits du drop mis en avant, avec compte à rebours.
+// S'affiche en teasing, accès anticipé et ouvert ; disparaît tout seul à la clôture.
+import CarteProduit from './CarteProduit.astro';
+import Rebours from './Rebours.astro';
+import { datesDuDrop, type Drop, type Produit } from '../lib/contenu';
+import { calculerEtat, si, zoneDrop } from '../lib/etat-drop';
+
+interface Props {
+  drop: Drop;
+  produits: Produit[];
+  maintenant: number;
+}
+const { drop, produits, maintenant } = Astro.props;
+const dates = datesDuDrop(drop);
+const etat = calculerEtat(dates, maintenant);
+const lienDrop = `/drops/${drop.id}`;
+---
+
+<div {...zoneDrop(dates, etat)}>
+  <section class="section-drop" aria-labelledby={`drop-${drop.id}`} {...si(['teasing', 'acces', 'ouvert'], etat)}>
+    <div class="section-drop__entete">
+      <div>
+        <p class="marquage">Drop en cours · Tirage limité</p>
+        <h2 id={`drop-${drop.id}`}>{drop.data.nom_de_code}</h2>
+        <p class="section-drop__accroche">{drop.data.accroche}</p>
+      </div>
+      <div class="section-drop__rebours">
+        <Rebours dates={dates} etat={etat} maintenant={maintenant} />
+        <a class="section-drop__lien" href={lienDrop}>L'histoire du drop <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <ul class="grille-produits grille-produits--vedette">
+      {
+        produits.map((produit, i) => (
+          <li data-categorie={produit.data.categorie}>
+            <CarteProduit produit={produit} drop={drop} maintenant={maintenant} vedette={i === 0} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</div>
+
+<style>
+  .section-drop {
+    border: 1px solid rgb(232 230 225 / 0.22);
+    background: linear-gradient(180deg, var(--furtif), rgb(28 42 68 / 0.35));
+    padding: 1.5rem var(--marge) 2rem;
+    margin-inline: calc(var(--marge) * -1);
+  }
+  @media (min-width: 48rem) {
+    .section-drop {
+      margin-inline: 0;
+      padding: 2.5rem;
+    }
+  }
+  .section-drop__entete {
+    display: grid;
+    gap: 1rem 2rem;
+    margin-bottom: 1.75rem;
+  }
+  @media (min-width: 48rem) {
+    .section-drop__entete {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+  }
+  .section-drop h2 {
+    font-size: clamp(2.6rem, 13vw, 4.5rem);
+    margin-bottom: 0.25rem;
+  }
+  .section-drop__accroche {
+    color: #b9bec6;
+    margin: 0;
+  }
+  .section-drop__lien {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding-block: 0.4rem;
+  }
+</style>

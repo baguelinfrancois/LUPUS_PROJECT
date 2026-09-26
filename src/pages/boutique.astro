@@ -1,34 +1,31 @@
 ---
 import Base from '../layouts/Base.astro';
 import CarteProduit from '../components/CarteProduit.astro';
+import SectionDrop from '../components/SectionDrop.astro';
 import { CATEGORIES, type Categorie } from '../config';
-import { dropALaUne, etatDuDrop, produitsPermanents } from '../lib/contenu';
+import { dropALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
 
 const maintenant = Date.now();
 const produits = await produitsPermanents();
+const drop = await dropALaUne(maintenant);
+const produitsDrop = drop ? await produitsDuDrop(drop.id) : [];
 const categories = (Object.keys(CATEGORIES) as Categorie[]).filter((c) =>
   produits.some((p) => p.data.categorie === c),
 );
-const drop = await dropALaUne(maintenant);
-const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(drop, maintenant));
 ---
 
 <Base titre="Boutique" description="Écussons, textile, accessoires et calendrier de l'Amicale du PSIG de Montargis.">
   <section class="section boutique">
     <div class="conteneur">
-      <p class="marquage">Toute l'année</p>
       <h1>Boutique</h1>
       <p class="chapeau">
-        Les pièces permanentes de l'amicale. Paiement et livraison gérés par HelloAsso.
+        Tous les produits de l'amicale. Paiement et livraison gérés par HelloAsso.
       </p>
 
-      {
-        dropActif && (
-          <p class="bandeau-drop">
-            Drop en cours : <a href={`/drops/${drop.id}`}>{drop.data.nom_de_code}</a>, en tirage limité.
-          </p>
-        )
-      }
+
+      {drop && produitsDrop.length > 0 && <SectionDrop drop={drop} produits={produitsDrop} maintenant={maintenant} />}
+
+      <h2 class="titre-permanents">Toute l'année</h2>
 
       <fieldset class="filtres">
         <legend class="visuellement-cache">Filtrer par catégorie</legend>
@@ -46,7 +43,7 @@ const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(dro
         }
       </fieldset>
 
-      <ul class="grille-produits" id="produits">
+      <ul class="grille-produits" data-liste-produits>
         {
           produits.map((produit) => (
             <li data-categorie={produit.data.categorie}>
@@ -61,11 +58,11 @@ const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(dro
 
 <script>
   // Filtre par catégorie. Sans JavaScript, tous les produits restent visibles.
-  const liste = document.getElementById('produits');
+  const liste = document.querySelector<HTMLElement>('[data-liste-produits]');
   const radios = document.querySelectorAll<HTMLInputElement>('input[name="categorie"]');
 
   function filtrer(valeur: string) {
-    liste?.querySelectorAll<HTMLElement>('li[data-categorie]').forEach((li) => {
+    liste?.querySelectorAll<HTMLElement>(':scope > li[data-categorie]').forEach((li) => {
       li.hidden = valeur !== 'tout' && li.dataset.categorie !== valeur;
     });
     const url = new URL(location.href);
@@ -86,21 +83,16 @@ const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(dro
   .boutique h1 {
     margin-bottom: 0.75rem;
   }
-  .bandeau-drop {
-    border-left: 2px solid var(--lampe);
-    padding: 0.25rem 0 0.25rem 0.9rem;
-    margin-block: 1.5rem;
-    font-family: var(--police-ui);
-    font-weight: 500;
-    font-size: 1.1rem;
+  .boutique .chapeau {
+    margin-bottom: 2rem;
   }
-  .bandeau-drop a {
-    font-weight: 600;
+  .titre-permanents {
+    margin-top: clamp(3rem, 10vw, 5rem);
   }
   .filtres {
     border: 0;
     min-width: 0;
-    margin: 1.5rem calc(var(--marge) * -1) 2rem;
+    margin: 0 calc(var(--marge) * -1) 2rem;
     padding: 0 var(--marge);
     display: flex;
     gap: 0.5rem;

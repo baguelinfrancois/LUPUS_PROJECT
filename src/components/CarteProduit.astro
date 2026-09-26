@@ -77,6 +77,11 @@ const lienFiche = `/produits/${produit.id}`;
   .carte:hover .carte__image :global(img) {
     transform: scale(1.03);
   }
+  /* Teasing : photo floutée jusqu'à l'accès anticipé */
+  .carte[data-etat='teasing'] .carte__image :global(img),
+  .carte[data-etat='avenir'] .carte__image :global(img) {
+    filter: blur(14px) brightness(0.6);
+  }
   .carte__corps {
     display: flex;
     flex-direction: column;

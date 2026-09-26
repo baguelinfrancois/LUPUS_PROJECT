@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import HeroViseur from '../components/HeroViseur.astro';
 import CarteProduit from '../components/CarteProduit.astro';
+import SectionDrop from '../components/SectionDrop.astro';
 import { SITE } from '../config';
 import { dropALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
 
@@ -29,6 +30,14 @@ const usages = [
 
 <Base>
   <HeroViseur drop={drop} produitPhare={produitPhare} maintenant={maintenant} />
+
+  {
+    drop && produitsDrop.length > 0 && (
+      <div class="conteneur bloc-drop">
+        <SectionDrop drop={drop} produits={produitsDrop} maintenant={maintenant} />
+      </div>
+    )
+  }
 
   <section class="section" aria-labelledby="titre-selection">
     <div class="conteneur">
@@ -87,6 +96,9 @@ const usages = [
 </Base>
 
 <style>
+  .bloc-drop {
+    padding-bottom: clamp(3rem, 10vw, 6rem);
+  }
   .entete-section {
     display: flex;
     justify-content: space-between;
