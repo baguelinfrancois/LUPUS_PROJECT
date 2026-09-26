@@ -5,7 +5,7 @@ import { dropALaUne, etatDuDrop } from '../lib/contenu';
 const drop = await dropALaUne();
 const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(drop));
 const liens = [
-  ...(dropActif ? [{ href: `/drops/${drop.id}`, texte: 'Drop' }] : []),
+  ...(dropActif ? [{ href: '/', texte: 'Drop' }] : []),
   { href: '/boutique', texte: 'Boutique' },
   { href: SITE.listePrivee, texte: 'Liste privée' },
 ];

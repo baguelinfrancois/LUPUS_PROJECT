@@ -1,14 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import CarteProduit from '../components/CarteProduit.astro';
-import SectionDrop from '../components/SectionDrop.astro';
 import { CATEGORIES, type Categorie } from '../config';
-import { dropALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
+import { dropALaUne, etatDuDrop, produitsPermanents } from '../lib/contenu';
 
 const maintenant = Date.now();
 const produits = await produitsPermanents();
 const drop = await dropALaUne(maintenant);
-const produitsDrop = drop ? await produitsDuDrop(drop.id) : [];
+const dropActif = drop && ['teasing', 'acces', 'ouvert'].includes(etatDuDrop(drop, maintenant)) ? drop : undefined;
 const categories = (Object.keys(CATEGORIES) as Categorie[]).filter((c) =>
   produits.some((p) => p.data.categorie === c),
 );
@@ -18,14 +17,13 @@ const categories = (Object.keys(CATEGORIES) as Categorie[]).filter((c) =>
   <section class="section boutique">
     <div class="conteneur">
       <h1>Boutique</h1>
-      <p class="chapeau">
-        Tous les produits de l'amicale. Paiement et livraison gérés par HelloAsso.
-      </p>
-
-
-      {drop && produitsDrop.length > 0 && <SectionDrop drop={drop} produits={produitsDrop} maintenant={maintenant} />}
-
-      <h2 class="titre-permanents">Toute l'année</h2>
+      {
+        dropActif && (
+          <a class="bandeau-drop" href="/">
+            <span>Drop en cours</span> <strong>{dropActif.data.nom_de_code}</strong> <span aria-hidden="true">→</span>
+          </a>
+        )
+      }
 
       <fieldset class="filtres">
         <legend class="visuellement-cache">Filtrer par catégorie</legend>
@@ -83,16 +81,32 @@ const categories = (Object.keys(CATEGORIES) as Categorie[]).filter((c) =>
   .boutique h1 {
     margin-bottom: 0.75rem;
   }
-  .boutique .chapeau {
-    margin-bottom: 2rem;
+  .boutique {
+    padding-top: 1.5rem;
   }
-  .titre-permanents {
-    margin-top: clamp(3rem, 10vw, 5rem);
+  .bandeau-drop {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--furtif);
+    text-decoration: none;
+    font-family: var(--police-ui);
+    font-size: 1.05rem;
+    color: var(--stealth-texte);
+  }
+  .bandeau-drop strong {
+    color: var(--lampe);
+    font-weight: 600;
+  }
+  .bandeau-drop:hover strong {
+    text-decoration: underline;
   }
   .filtres {
     border: 0;
     min-width: 0;
-    margin: 0 calc(var(--marge) * -1) 2rem;
+    margin: 0 calc(var(--marge) * -1) 1.5rem;
     padding: 0 var(--marge);
     display: flex;
     gap: 0.5rem;

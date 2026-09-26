@@ -58,10 +58,11 @@ const avance = dates ? Math.round((dates.ouverture - dates.acces) / 3_600_000) :
         drop && etat ? (
           <>
             <p class="marquage">
-              <span {...si(['avenir', 'teasing', 'acces', 'ouvert'], etat)}>Drop en cours · {drop.data.nom_de_code}</span>
-              <span {...si(['clos', 'archive'], etat)}>Dernier drop · {drop.data.nom_de_code}</span>
+              <span {...si(['avenir', 'teasing', 'acces', 'ouvert'], etat)}>Drop en cours</span>
+              <span {...si(['clos', 'archive'], etat)}>Dernier drop</span>
             </p>
-            <h1 id="hero-titre">{drop.data.accroche}</h1>
+            <h1 id="hero-titre">{drop.data.nom_de_code}</h1>
+            <p class="hero__accroche">{drop.data.accroche}</p>
 
             <Rebours dates={dates!} etat={etat} maintenant={maintenant} />
 
@@ -297,6 +298,11 @@ const avance = dates ? Math.round((dates.ouverture - dates.acces) / 3_600_000) :
     color: var(--stealth-texte);
     margin-bottom: 1rem;
     max-width: 30rem;
+  }
+  .hero__accroche {
+    font-size: 1.15rem;
+    color: var(--stealth-texte);
+    margin: -0.4rem 0 1.1rem;
   }
   .hero__info--apres {
     margin: 0.9rem 0 0;

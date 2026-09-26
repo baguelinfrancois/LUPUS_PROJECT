@@ -340,12 +340,12 @@ a:hover {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem 1rem;
+  gap: 1.75rem 0.75rem;
 }
 @media (min-width: 48rem) {
   .grille-produits {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 3rem 1.5rem;
+    gap: 2.5rem 1.25rem;
   }
 }
 @media (min-width: 64rem) {
