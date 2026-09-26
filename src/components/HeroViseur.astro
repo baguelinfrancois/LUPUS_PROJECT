@@ -120,17 +120,35 @@ const avance = dates ? Math.round((dates.ouverture - dates.acces) / 3_600_000) :
           </>
         ) : (
           <>
-            <p class="marquage">Amicale du PSIG de Montargis</p>
-            <h1 id="hero-titre">Le prochain drop se prépare.</h1>
-            <p class="hero__info">La liste privée est prévenue en premier.</p>
-            <div class="boutons">
-              <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">
-                Rejoindre la liste privée
-              </a>
-              <a class="bouton bouton--secondaire" href="/boutique">
-                Voir la boutique
-              </a>
-            </div>
+            <p class="marquage">À la une</p>
+            {produitPhare ? (
+              <>
+                <h1 id="hero-titre">{produitPhare.data.nom}</h1>
+                <p class="hero__info">{produitPhare.data.description_courte}</p>
+                <p class="hero__prix">
+                  {prix(produitPhare.data.prix)}
+                  {produitPhare.data.numerotation && <span> · {produitPhare.data.numerotation}</span>}
+                </p>
+                <div class="boutons">
+                  <a class="bouton" href={lienAchat(produitPhare)} rel="noopener" data-suivi="achat" data-produit={produitPhare.id}>
+                    Acheter sur HelloAsso <span class="fleche" aria-hidden="true">↗</span>
+                  </a>
+                  <a class="bouton bouton--secondaire" href="/boutique">
+                    Toute la boutique
+                  </a>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 id="hero-titre">Le prochain drop se prépare.</h1>
+                <p class="hero__info">La liste privée est prévenue en premier.</p>
+                <div class="boutons">
+                  <a class="bouton" href={SITE.listePrivee} data-suivi="inscription">
+                    Rejoindre la liste privée
+                  </a>
+                </div>
+              </>
+            )}
           </>
         )
       }
@@ -283,6 +301,17 @@ const avance = dates ? Math.round((dates.ouverture - dates.acces) / 3_600_000) :
   .hero__info--apres {
     margin: 0.9rem 0 0;
     font-size: 0.95rem;
+  }
+  .hero__prix {
+    font-family: var(--police-ui);
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  .hero__prix span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--stealth-texte);
   }
   .hero__info strong {
     color: var(--lampe);

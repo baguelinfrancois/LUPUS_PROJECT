@@ -66,3 +66,9 @@ export async function dropALaUne(maintenant = Date.now()): Promise<Drop | undefi
   if (aVenir.length) return aVenir[0].d;
   return avecEtat.find((x) => x.e === 'clos')?.d;
 }
+
+/** Produit montré dans le viseur quand aucun drop n'est en cours : celui marqué « a_la_une », sinon le premier. */
+export async function produitALaUne(): Promise<Produit | undefined> {
+  const produits = await produitsPermanents();
+  return produits.find((p) => p.data.a_la_une) ?? produits[0];
+}

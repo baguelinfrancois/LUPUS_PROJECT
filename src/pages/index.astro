@@ -4,12 +4,12 @@ import HeroViseur from '../components/HeroViseur.astro';
 import CarteProduit from '../components/CarteProduit.astro';
 import SectionDrop from '../components/SectionDrop.astro';
 import { SITE } from '../config';
-import { dropALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
+import { dropALaUne, produitALaUne, produitsDuDrop, produitsPermanents } from '../lib/contenu';
 
 const maintenant = Date.now();
 const drop = await dropALaUne(maintenant);
 const produitsDrop = drop ? await produitsDuDrop(drop.id) : [];
-const produitPhare = produitsDrop[0];
+const produitPhare = drop ? produitsDrop[0] : await produitALaUne();
 const selection = (await produitsPermanents()).slice(0, 4);
 
 const usages = [

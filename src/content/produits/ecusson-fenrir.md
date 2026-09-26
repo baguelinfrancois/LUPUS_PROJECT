@@ -1,17 +1,13 @@
 ---
-nom: Écusson Fenrir
-description_courte: Brodé, dos velcro, 8 cm. Basse visibilité.
-prix: 12
+nom: « Fenrir » – Écusson PVC
+description_courte: Notre Fenrir est là. Finition premium, velcro arrière. Il est mignon, mais il sait mordre.
+prix: 5
 photos:
   - photo: ./images/ecusson-fenrir.jpg
-    texte_alternatif: Écusson rond Fenrir, tête de loup grise sur fond bleu nuit.
-  - photo: ./images/ecusson-fenrir-2.jpg
-    texte_alternatif: Écusson Fenrir posé sur un tissu sombre.
-drop: fenrir
-statut: precommande
-numerotation: Tirage limité à 200
-ordre: 3
+    texte_alternatif: Écusson PVC Fenrir, loup en tenue d'intervention avec casque.
+statut: disponible
+ordre: 12
 categorie: patch
 ---
 
-Diamètre 8 cm. Broderie haute densité. Dos velcro, partie auto-agrippante fournie.
+Stock immédiat. Envoi rapide.

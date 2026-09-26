@@ -1,11 +1,13 @@
 ---
-nom: Écusson Stealth
-description_courte: Bande nominative ton sur ton. Gris sur gris.
-prix: 10
+nom: « Stealth » – Écusson PVC basse visibilité gris
+description_courte: L'écusson PVC basse visibilité gris du PSIG Montargis. Soyez invisibles.
+prix: 7
 photos:
   - photo: ./images/ecusson-stealth.jpg
-    texte_alternatif: Écusson rectangulaire gris portant l'inscription Stealth.
+    texte_alternatif: Écusson PVC rond gris du PSIG Sabre Montargis, tête de loup grise.
 statut: disponible
-ordre: 11
+ordre: 14
 categorie: patch
 ---
+
+Finition premium, PVC robuste, rendu discret. Stock immédiat, envoi rapide.

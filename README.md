@@ -2,7 +2,7 @@
 
 Site vitrine des écussons et produits de l'amicale. **Aucun paiement sur le site** : chaque bouton « Acheter sur HelloAsso » renvoie vers la boutique HelloAsso.
 
-> ⚠️ Les produits, drops, prix et photos actuels sont des **exemples** (visuels marqués « PROVISOIRE »). Il faut tous les remplacer avant la mise en ligne publique.
+> Les 13 produits viennent de la boutique HelloAsso. Leurs photos sont provisoires (découpées dans des captures d'écran) : à remplacer par les vraies photos en bonne qualité.
 
 ---
 
@@ -27,6 +27,7 @@ numerotation: Tirage limité à 100   # facultatif
 ordre: 10                   # plus petit = affiché plus haut
 categorie: patch            # pack | patch | textile | accessoire | sticker | calendrier
 premium: false              # true = mis en avant avec les packs
+a_la_une: false             # true = montré dans le viseur de l'accueil quand aucun drop n'est en cours
 drop: fenrir                # facultatif : nom du fichier du drop, sans .md
 ---
 
@@ -40,7 +41,7 @@ Texte plus long, facultatif. Il s'affiche sur la page du produit.
 
 ## Ajouter un drop
 
-1. Dans `src/content/drops/`, copiez `fenrir.md` et renommez-le (`loup-garou.md` → `/drops/loup-garou`).
+1. Dans `src/content/drops/`, créez un fichier (par exemple en copiant l'exemple ci-dessous) et nommez-le (`loup-garou.md` → `/drops/loup-garou`).
 2. Déposez le visuel et le lookbook dans `src/content/drops/images/`.
 3. Remplissez l'en-tête :
 

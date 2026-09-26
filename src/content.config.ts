@@ -49,6 +49,8 @@ const produits = defineCollection({
       ordre: z.number().default(100),
       categorie: z.enum(['pack', 'patch', 'textile', 'accessoire', 'sticker', 'calendrier']),
       premium: z.boolean().default(false),
+      // Produit montré dans le viseur de l'accueil quand aucun drop n'est en cours.
+      a_la_une: z.boolean().default(false),
     }),
 });
 
