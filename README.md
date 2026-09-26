@@ -2,7 +2,7 @@
 
 Site vitrine des écussons et produits de l'amicale. **Aucun paiement sur le site** : chaque bouton « Acheter sur HelloAsso » renvoie vers la boutique HelloAsso.
 
-> Les 13 produits viennent de la boutique HelloAsso. Leurs photos sont provisoires (découpées dans des captures d'écran) : à remplacer par les vraies photos en bonne qualité.
+> Les 13 produits viennent de la boutique HelloAsso. Leurs photos viennent de HelloAsso (300 × 300 px) : de plus grandes photos, prises de nuit, rendraient mieux.
 
 ---
 

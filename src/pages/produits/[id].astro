@@ -152,7 +152,7 @@ const imageOg = await getImage({ src: p.photos[0].photo, width: 1200, format: 'j
   }
   .galerie li {
     scroll-snap-align: start;
-    height: min(46svh, 125vw);
+    height: min(46svh, 100vw);
     background: var(--furtif);
   }
   @media (min-width: 56rem) {
@@ -162,13 +162,13 @@ const imageOg = await getImage({ src: p.photos[0].photo, width: 1200, format: 'j
     }
     .galerie li {
       height: auto;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 1;
     }
   }
   .galerie :global(img) {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
   /* Teasing : photos floutées jusqu'à l'accès anticipé */
   .fiche[data-etat='teasing'] .galerie :global(img),
